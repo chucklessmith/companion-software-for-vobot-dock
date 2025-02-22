@@ -71,14 +71,18 @@ class GUI:
 
     def __init__(self):
         self.T = None
-        self.device_ip = ""
+        self.device_ip = "192.168.0.10"
         self.root = tk.Tk()
         self.root.title('Computer Monitor')
         self.running = False
         self.config = configparser.ConfigParser()
 
         self.load_configuration()
-        self.initial_interface()
+        if not self.device_ip:
+            self.initial_interface()
+        else:
+            self.start()
+            self.run_interface()
 
     def load_configuration(self):
         self.config.read(CONFIGURATION_FILE_PATH)
@@ -88,7 +92,7 @@ class GUI:
                 if option != "target": continue
                 self.device_ip = self.config.get(section, option)
 
-                if not is_valid_ip(self.device_ip): self.device_ip = ""
+                if not is_valid_ip(self.device_ip): self.device_ip = "192.168.0.10"
                 return
 
     def save_configuration(self):
@@ -146,10 +150,10 @@ class GUI:
     def broadcast(self):
         udp_client.init()
         # Put the application in the background
-        # self.root.withdraw()
+        self.root.withdraw()
 
         # Minimize the window
-        self.root.iconify()
+        # self.root.iconify()
         while self.running:
             try:
                 text = ""
@@ -167,13 +171,14 @@ class GUI:
                 except Exception as e:
                     text = "Fail to send [" + str(e) + "]."
                 self.log(text)
-                time.sleep(5)
+                time.sleep(2)
             except RuntimeError:
                 break
         self.T = None
 
     def start(self):
-        self.device_ip = self.ip_entry.get()
+        if not self.device_ip:
+            self.device_ip = self.ip_entry.get()
         if is_valid_ip(self.device_ip):
             self.save_configuration()
             udp_client.unicast_ip = self.device_ip
