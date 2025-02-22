@@ -1,3 +1,7 @@
 dist/
 build/
 env/
+__pycache__/
+configuration.ini
+main.spec
+sensors/__pycache__/
