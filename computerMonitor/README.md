@@ -41,6 +41,45 @@ python main.py
 
 After starting the program, enter the IP address of the Mini Dock to begin broadcasting PC hardware information via UDP. The Vobot Mini Dock will receive and display this information.
 
+## Run headlessly on macOS
+
+`background.py` runs without a window and sends system stats to the configured dock every two seconds. It reads the target address from `configuration.ini` in this directory. Set it before installing the LaunchAgent:
+
+```ini
+[IP]
+target=192.168.0.10
+```
+
+Create the project environment and install dependencies if you have not already done so:
+
+```bash
+cd computerMonitor
+python3 -m venv env
+env/bin/python -m pip install -r requirements.txt
+```
+
+Install and start the per-user LaunchAgent with logging disabled:
+
+```bash
+env/bin/python install_launch_agent.py install
+```
+
+It starts at login and is restarted by macOS if it exits. To enable application logging to `~/Library/Logs/VobotComputerMonitor.log`, add `--log`:
+
+```bash
+env/bin/python install_launch_agent.py install --log
+```
+
+The same `--log` option enables logging when running the script directly: `env/bin/python background.py --log`. Without it, the process does not create an application log file.
+
+To stop and remove the LaunchAgent:
+
+```bash
+env/bin/python install_launch_agent.py uninstall
+```
+
+This is a per-user agent, so it runs after you log in. macOS may ask for network access the first time it sends UDP packets. GPU and temperature readings depend on the hardware and sensor support available on the Mac.
+
 ## Packaging the Application
 
 To package the Hardware Monitoring application into a standalone executable, follow these steps:
